@@ -1,0 +1,52 @@
+# Maven runtime loaded configs
+
+server.port: 8752
+kafka:
+  producer: localhost:9092
+  consumer: localhost:9092
+
+app.info:
+  name: "@project.name@"
+  version: "@project.version@"
+# Spring config
+spring:
+  application:
+    name: ${app.info.name}
+  profiles:
+    active: ${namespace}
+  kafka:
+    topics:
+      job-request: kafka-testing-service-job-request-${namespace}
+    producer:
+      bootstrap-servers: ${kafka.producer}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      enable-auto-commit: true
+      bootstrap-servers: ${kafka.consumer}
+      group-id: kafka-testing-service-${namespace}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.kafka.demo.pojo"
+        max.poll.interval.ms: 1200000
+        max.poll.records: 100
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+    org:
+      apache:
+        kafka: INFO
